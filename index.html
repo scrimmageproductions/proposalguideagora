@@ -1,379 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proposal Recipe</title>
-
-  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-  <link rel="stylesheet" href="./index.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
-
+  <title>PizzaDAO Governance</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Gluten:wght@100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-    rel="stylesheet">
-
-  <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/index.css">
 </head>
 
-<body class="rubik-header-text bg-white text-gray-900 p-0 m-0">
+<body>
+  <canvas id="pepperoni-canvas"></canvas>
 
-  <!-- Header with Logo & Navigation -->
-  <header class="text-white px-3 md:px-4 lg:px-6 py-2 flex flex-col md:flex-row gap-y-2 md:justify-between items-center"
-    style="background-color: #f53e46;">
-    <img src="https://raw.githubusercontent.com/PizzaDAO/proposalguide/main/assets/logo-white.png" alt="PizzaDAO Logo"
-      class="h-8 md:h-12">
-    <nav class="space-x-6 text-xs md:text-md lg:text-lg font-medium">
-      <a href="https://discord.pizzadao.xyz" target="_blank" class="hover:underline hover:text-yellow-400">Join
-        PizzaDAO</a>
-      <a href="https://sesh.fyi/dashboard/812097286003359764/polls/create?channel_id=969802552495456256" target="_blank"
-        class="hover:underline hover:text-yellow-400">Poll Creator</a>
-      <a href="https://docs.google.com/document/d/10tTWXE76vDTawuYtzesCfbpoeXI36gItMsaEmC0UrzM/edit" target="_blank"
-        class="hover:underline hover:text-yellow-400">Prop Templates</a>
-    </nav>
-  </header>
-
-  <!-- Tips Modal -->
-  <section id="tip-modal" class="modal fade" tabindex="-1" aria-labelledby="tipModalLabel" aria-hidden="true">
-    <div class="modal-dialog mt-4 modal-lg">
-      <div class="modal-content tipcontainer mb-2">
-        <div class="modal-header p-0 position-relative">
-          <h4 class="pt-2 mt-2 text-md md:text-xl font-bold"> Before you begin, here are some tips from the
-            famiglia 🤌</h4>
-          <button type="button" class="position-absolute end-0 top-0 btn-close" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-        </div>
-        <ul class="modal-body">
-          <li>
-            <strong class="gluten-text">Engage the community:</strong> Participate in the PizzaDAO Discord to
-            establish yourself within the pizza mafia.
-            Join community calls on Sundays at 1pm EST and join crew calls throughout the week.
-          </li>
-          <li>
-            <strong class="gluten-text">Network and build relationships:</strong> Establish connections with
-            other PizzaDAO members who share common interests.
-            Building a network within the community can lead to increased support for your proposal.
-          </li>
-          <li>
-            <strong class="gluten-text">Build a strong case:</strong> Clearly explain how your proposal aligns
-            with PizzaDAO's mission and benefits the community.
-            Use compelling language and visuals to make your case stand out.
-          </li>
-          <li>
-            <strong class="gluten-text">Answer questions:</strong> Be responsive to community members'
-            questions and concerns.
-            Providing thorough responses can build trust and garner more votes
-          </li>
-          <li>
-            <strong class="gluten-text">Collaborate with others:</strong> Seek endorsements or partnerships
-            with established
-            members or projects within PizzaDAO for credibility and more votes.
-          </li>
-          <li>
-            <strong class="gluten-text">Communicate updates:</strong> Update the community on your proposal's
-            progress.
-            Share achievements and milestones in general chat or in your proposal's thread.
-          </li>
-          <li>
-            <strong class="gluten-text">Socialize your proposal:</strong> Share it strategically in relevant
-            channels,
-            bring it up on PizzaDAO's community calls, and ask your friends within the DAO to support you.
-          </li>
-        </ul>
-        <p> By focusing on these aspects, you can significantly increase your chances of getting more 👍 votes
-          for your proposal in PizzaDAO. </p>
+  <div id="app">
+    <header>
+      <div class="container header-content">
+        <img src="/assets/logo-white.png" alt="PizzaDAO" class="logo">
+        <nav>
+          <a href="#proposals" class="nav-link active" data-page="proposals">Proposals</a>
+          <a href="#rules" class="nav-link" data-page="rules">Governance Rules</a>
+          <a href="#payments" class="nav-link" data-page="payments">Submit Payment</a>
+        </nav>
+        <button id="connect-wallet" class="btn-primary">Connect Wallet</button>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- Hero Image + Title -->
-  <section
-    class="flex flex-col lg:flex-row items-center justify-center px-6 py-8 space-y-8 lg:space-y-0 lg:space-x-12 lg:mx-15">
-    <img src="https://raw.githubusercontent.com/PizzaDAO/proposalguide/main/assets/molto%20benny.gif"
-      alt="Proposal Visual" class="w-64 rounded shadow-lg">
-    <div>
-      <h1 class="text-3xl lg:text-5xl font-extrabold md:text-center lg:text-left">PizzaDAO Proposal Recipe
-      </h1>
-      <p class="max-w-4xl mx-auto text-lg leading-relaxed lg:pb-10 text-justify">
-        Here's a recipe for getting some dough from the pizza mafia,
-        <a role="button" class="text-[#EF4444] font-semibold gluten-text" data-bs-toggle="modal"
-          data-bs-target="#tip-modal">list of tips</a>
-        on how to curry favor
-        with the Familia.
-        Only PizzaDAO NFT holders can submit PizzaDAO proposals, capiche?
-        If you don't have one, you can get one at
-        <a href="https://rarepizzas.com" class="text-blue-600 underline gluten-text " target="_blank">RarePizzas.com</a>
-        or
-        ask a holder to sponsor your proposal.
-      </p>
-    </div>
-  </section>
+    <main id="main-content">
+    </main>
 
-  <!-- Ingredients Section -->
-  <section class="px-6 max-w-4xl mx-auto space-y-12 text-base">
-    <div>
-      <h2 class="text-2xl font-bold mb-2">🍕 Ingredient #1: Claim Your Discord Role</h2>
-      <ol class="list-decimal list-inside space-y-2">
-        <li>Go to the <span class="font-bold text-red-600">#collabland-join</span> Channel in Discord.</li>
-        <li>Connect your wallet using the prompt or type <span class="font-bold text-red-600">/connect</span>.
-        </li>
-        <li>Get your role based on owning a Rare Pizza Box or Rare Pizza NFT.<br>
-          <em class="text-sm text-gray-500">Note: Make sure you're connecting to the official bot to avoid
-            scams.</em>
-        </li>
-      </ol>
-    </div>
-
-    <div>
-      <h2 class="text-2xl font-bold mb-2">🍕 Ingredient #2: Create Your Proposal</h2>
-      <p>Connect to the <a
-          href="https://sesh.fyi/dashboard/812097286003359764/polls/create?channel_id=969802552495456256"
-          class="text-blue-600 underline" target="_blank">PizzaDAO Poll Creator</a> and follow these 12 steps:
-      </p>
-      <ol class="list-decimal list-inside space-y-2 mt-2 text-justify">
-        <li>Enter Poll Title: Type in the name of your event. E.g: ETHDenver Pizza Party</li>
-        <li>Select Channel: Select the "proposals" channel.</li>
-        <li>Fill Poll Options: Aye, Nay, Abstain</li>
-        <li>Enter Description: <br>Fill the description field following the template provided below. If it's not
-          fit your proposal, <a
-            href="https://docs.google.com/document/d/10tTWXE76vDTawuYtzesCfbpoeXI36gItMsaEmC0UrzM/edit"
-            class="text-blue-600 underline" target="_blank">check here</a> for more templates.</li>
-        <li>Leave "allow anyone to add poll option" deselected</li>
-        <li>Select Mentions: Tag yourself, your proposal sponsor (if applicable), and Don Scrimmy John. In
-          'Roles', tag @Super Voter.</li>
-        <li>Keep "Single Vote Per User" selected</li>
-        <li>Select "Anonymous"</li>
-        <li>Enter End Time: Fill field with: "In 7 Days"</li>
-        <li>Enter Image: <br>Insert link to image here. Flyer images can be powerful to make your proposal stand
-          out!</li>
-        <li>Select Role Restrictions: <br>Enter 'Box Mafia' & 'Pizza Mafia'.<br><strong>This is very important
-            as we only allow our box and pizza NFT holders the ability to vote.</strong></li>
-        <li>Submit with the "Create Poll" button</li>
-      </ol>
-      <button onclick="toggleAccordion('formContent')"
-        class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Click to Open Proposal
-        Builder</button>
-      <div id="formContent" class="mt-6 hidden border border-gray-300 rounded p-6 bg-gray-50 relative">
-        <form class="relative" id="template">
-          <button type="button" id="copy"
-            class="absolute top-0 end-0 text-sm rounded-lg pe-3 content-center cursor-pointer :hover:bg-gray-700 flex">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
-                d="M9 8v3a1 1 0 0 1-1 1H5m11 4h2a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v1m4 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7.13a1 1 0 0 1 .24-.65L7.7 8.35A1 1 0 0 1 8.46 8H13a1 1 0 0 1 1 1Z" />
-            </svg>
-            copy
-          </button>
-          <div>
-            <label class="block font-semibold">Event Name:</label>
-            <input name="event" id="event" type="text" placeholder="**Event:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">PizzaDAO Member:</label>
-            <input type="text" name="member" id="member" placeholder="**Member:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Proposal Sponsor:</label>
-            <input type="text" name="sponsor" id="sponsor" placeholder="**PizzaDAO Proposal Sponsor:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Location:</label>
-            <input type="text" name="location" id="location" placeholder="**Location:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Date:</label>
-            <input type="date" name="date" id="date" class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Comp/Cost:</label>
-            <input type="text" name="cost" id="cost" placeholder="**Comp/Cost:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Attendance:</label>
-            <input type="text" name="attendance" id="attendance" placeholder="**Estimated Attendance:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Event Sponsors:</label>
-            <input type="text" name="event-sponsor" id="event-sponsor" placeholder="**Other Confirmed Event Sponsors:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">Ordering Pizza From:</label>
-            <input type="text" name="pizza" id="pizza" placeholder="**Ordering Pizza From:**"
-              class="w-full border rounded px-3 py-2" />
-          </div>
-          <div>
-            <label class="block font-semibold">How This Benefits PizzaDAO:</label>
-            <textarea name="benefit" id="benefit" placeholder="**Description & How This Benefits PizzaDAO:**"
-              class="w-full border rounded px-3 py-2"></textarea>
-          </div>
-          <div>
-            <label class="block font-semibold">Budget Breakdown:</label>
-            <textarea name="budget" id="budget" placeholder="**Budget Breakdown|Pizza Only:**"
-              class="w-full border rounded px-3 py-2"></textarea>
-          </div>
-          <div>
-            <label class="block font-semibold">👍 Ayes + Abstains:</label>
-            <select name="Ayes + Abstains" class="w-full border rounded px-3 py-2">
-              <option>Select an option</option>
-              <option>15 (≤ $625)</option>
-              <option>25 ($625–$2500)</option>
-              <option>35 (>$2500)</option>
-            </select>
-          </div>
-        </form>
+    <footer>
+      <div class="container">
+        <p>Pizza the Planet</p>
+        <p>Powered by Agora</p>
       </div>
-    </div>
-
-    <div>
-      <h2 class="text-2xl font-bold mb-2">🍕 Ingredient #3: Submit Your Proposal for Review</h2>
-      <p>
-        If you would like to have a governance crew member review your proposal before submitting, copy and
-        paste your description above,
-        post it in <a href="https://discord.com/channels/812097286003359764/1341145124092117124/1341145708287361195"
-          target="_blank" class="text-blue-600 underline">this thread here</a>, and tag
-        <code>@Governance</code>.
-      </p>
-      <p class="mt-4 text-sm text-gray-700 italic">
-        ✅ Once you're ready, submit your proposal using the "Create Poll" button in the PizzaDAO Discord poll
-        builder.
-        <br />Congratulations — you just made your own PizzaDAO Proposal! 🍕
-        Didn't see the proposal template you needed? Visit our
-        <a href="https://docs.google.com/document/d/10tTWXE76vDTawuYtzesCfbpoeXI36gItMsaEmC0UrzM/edit"
-          class="text-blue-600 underline" target="_blank">other proposal templates</a>.
-      </p>
-    </div>
-
-    <div>
-      <h2 class="text-2xl font-bold mb-2">🍕 Ingredient #4: Payments</h2>
-      <p>If your proposal has passed, please fill out the payment form <a href="https://pizzadao.xyz/pay"
-          target="_blank" class="text-blue-600 underline">here</a>.</p>
-      <p>Payments are typically processed within 7 days. Submit at least 14 days before your event for timely
-        delivery. Urgent requests may be delayed.</p>
-    </div>
-
-  <div> 
-    <p>For a proposal to pass, it must have more Ayes than Nays and the combined total of Ayes + Abstains must be more than the threshold required for the dollar amount of the proposal. Voting is one vote per PizzaDAO member.</p>
+    </footer>
   </div>
 
-    <div>
-      <h2 class="text-2xl font-bold mb-2">🍕 Ingredient #5: Ayes + Abstains Needed</h2>
-      <ul class="list-disc list-inside space-y-1">
-        <li>15 for proposals ≤ $625</li>
-        <li>25 for proposals $625–$2500</li>
-        <li>35 for everything else</li>
-      </ul>
-    </div>
-  </section>
-
-  <div class="my-16 text-center">
-    <img
-      src="https://cdn.prod.website-files.com/60651d01d383e4f482012c1d/60a1c6dccfed1110352079da_unnamed.png"
-      alt="Final Pizza Image" class="mx-auto max-w-sm">
-  </div>
-
-  <!-- Footer -->
-  <footer class="bg-white text-center border-t border-gray-200 py-6 text-sm text-gray-600">
-    <div class="flex justify-center items-center space-x-4 mb-2">
-      <a href="https://github.com/PizzaDAO" target="_blank">
-        <img src="https://img.icons8.com/ios-glyphs/30/000000/github.png" class="h-5" alt="GitHub">
-      </a>
-      <a href="https://twitter.com/Pizza_DAO" target="_blank">
-        <img src="https://img.icons8.com/ios-filled/50/000000/twitter.png" class="h-5" alt="Twitter">
-      </a>
-      <a href="https://discord.gg/r4FgMHSQ" target="_blank">
-        <img src="https://img.icons8.com/ios-glyphs/30/000000/discord-logo.png" class="h-5" alt="Discord">
-      </a>
-    </div>
-    © 2024. PizzaDAO. All rights reserved.
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"
-    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"></script>
-  <script>
-    function fallbackCopyText(text) {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-
-      // Prevent the textarea from being visible
-      textarea.style.position = "absolute";
-      textarea.style.display = "hidden";
-
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-
-      try {
-        document.execCommand("copy");
-        console.log("Text copied using fallback method!");
-      } catch (err) {
-        console.error("Fallback copy failed", err);
-      }
-
-      document.body.removeChild(textarea);
-    }
-
-    function toggleAccordion(id) {
-      const content = document.getElementById(id);
-      content.classList.toggle("hidden");
-    }
-
-    let hasShownModal = localStorage.getItem('hasShownModal')
-    var tipModal = new bootstrap.Modal(document.getElementById('tip-modal'))
-    if (!hasShownModal) {
-      tipModal.show()
-      localStorage.setItem('hasShownModal', 'true')
-    }
-    let items = [
-      "**Event:**", "**Member:**", "**PizzaDAO Proposal Sponsor:**", "**Location:**", "**Date:**", "**Comp/Cost:**",
-      "**Estimated Attendance:**", "**Other Confirmed Event Sponsors:**", "**Ordering Pizza From:**", "**Description & How This Benefits PizzaDAO:**",
-      "**Budget Breakdown:**", "**👍 Ayes + Abstains Needed:**"
-    ]
-    let copyBtn = document.querySelector("#copy")
-    let template = document.querySelector("#template")
-    copyBtn.addEventListener('click', () => {
-      const formData = new FormData(template)
-      const values = [...formData.values()]
-      const templateText = values.map((value, index) => `${items[index]} ${value}`).join('\n')
-      console.log(templateText)
-
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(templateText)
-          .then(() => {
-            copyBtn.innerHTML = 'copied'
-            setTimeout(() => {
-              copyBtn.innerHTML = `
-              <svg 
-                class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"height="24" fill="none" viewBox="0 0 24 24"
-              >
-                <path 
-                  stroke="currentColor" stroke-linejoin="round" stroke-width="2" 
-                  d="M9 8v3a1 1 0 0 1-1 1H5m11 4h2a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v1m4 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7.13a1 1 0 0 1 .24-.65L7.7 8.35A1 1 0 0 1 8.46 8H13a1 1 0 0 1 1 1Z"
-                />
-              </svg> copy
-            `
-            }, 1000)
-          })
-          .catch(err => {
-            console.error("Clipboard API failed, falling back to legacy method", err);
-            fallbackCopyText(templateText);
-          });
-      } else {
-        // Fallback for mobile and insecure contexts
-        fallbackCopyText(templateText);
-      }
-    })
-  </script>
+  <script type="module" src="/src/main.js"></script>
 </body>
-
 </html>
