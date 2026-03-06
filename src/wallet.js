@@ -7,7 +7,7 @@ let userAddress = null;
 let web3Modal = null;
 let connectionType = null;
 
-const projectId = '8f1a3b9e6c7d2a5f4e3b1c9d8a7f6e5d';
+const projectId = 'c5d2f8e3a1b9d6f4e7c8a2b5d3f6e9a1';
 
 const mainnet = {
   chainId: 1,
@@ -69,18 +69,17 @@ function showWalletOptions() {
 
   const modal = document.createElement('div');
   modal.id = 'wallet-modal';
+  modal.className = 'modal-overlay active';
   modal.innerHTML = `
-    <div class="modal-overlay">
-      <div class="modal-content">
-        <h2>Connect Wallet</h2>
-        <button class="wallet-option" id="metamask-option">
-          <span>MetaMask</span>
-        </button>
-        <button class="wallet-option" id="walletconnect-option">
-          <span>WalletConnect</span>
-        </button>
-        <button class="modal-close" id="close-modal">Cancel</button>
-      </div>
+    <div class="modal-content">
+      <h2>Connect Wallet</h2>
+      <button class="wallet-option" id="metamask-option">
+        <span>MetaMask</span>
+      </button>
+      <button class="wallet-option" id="walletconnect-option">
+        <span>WalletConnect</span>
+      </button>
+      <button class="modal-close" id="close-modal">Cancel</button>
     </div>
   `;
 
@@ -100,8 +99,8 @@ function showWalletOptions() {
     modal.remove();
   });
 
-  modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-overlay')) {
+  modal.addEventListener('click', (e) => {
+    if (e.target.id === 'wallet-modal') {
       modal.remove();
     }
   });
