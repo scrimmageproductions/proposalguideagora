@@ -1,3 +1,4 @@
+import '@reown/appkit-polyfills';
 import { createAppKit } from '@reown/appkit';
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { mainnet, sepolia } from '@reown/appkit/networks';
