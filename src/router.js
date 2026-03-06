@@ -1,6 +1,7 @@
 import { renderProposalsPage } from './pages/proposals.js';
 import { renderRulesPage } from './pages/rules.js';
 import { renderPaymentsPage } from './pages/payments.js';
+import { renderDelegatesPage } from './pages/delegates.js';
 
 export function initRouter() {
   const navLinks = document.querySelectorAll('.nav-link');
@@ -32,6 +33,9 @@ function navigateToPage(page) {
   switch (page) {
     case 'proposals':
       renderProposalsPage(mainContent);
+      break;
+    case 'delegates':
+      renderDelegatesPage(mainContent);
       break;
     case 'rules':
       renderRulesPage(mainContent);

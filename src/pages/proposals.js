@@ -170,10 +170,23 @@ async function showProposalDetail(proposalId, proposals) {
 
   const { data: userVote } = wallet.isConnected ? await supabase
     .from('votes')
-    .select('vote_type')
+    .select('vote_type, id')
     .eq('proposal_id', proposalId)
     .eq('voter_address', wallet.userAddress)
     .maybeSingle() : { data: null };
+
+  const { data: comments } = await supabase
+    .from('proposal_comments')
+    .select('*')
+    .eq('proposal_id', proposalId)
+    .is('parent_comment_id', null)
+    .order('created_at', { ascending: false });
+
+  const { data: voteReasons } = await supabase
+    .from('vote_reasons')
+    .select('*, votes(voter_address, vote_type)')
+    .eq('votes.proposal_id', proposalId)
+    .order('created_at', { ascending: false });
 
   const isActive = proposal.status === 'active';
   const hasVoted = !!userVote;
@@ -221,26 +234,76 @@ async function showProposalDetail(proposalId, proposals) {
         <button class="vote-btn vote-btn-nay" data-vote="nay">Nay</button>
         <button class="vote-btn vote-btn-abstain" data-vote="abstain">Abstain</button>
       </div>
+      <div class="form-group" style="margin-top: 16px;">
+        <label for="vote-reason">Vote Reason (optional)</label>
+        <textarea id="vote-reason" placeholder="Explain why you're voting this way..."></textarea>
+      </div>
     ` : ''}
 
     ${hasVoted ? `<p style="text-align: center; margin-top: 16px; color: #4CAF50; font-weight: 800;">You voted: ${userVote.vote_type.toUpperCase()}</p>` : ''}
     ${!wallet.isConnected ? `<p style="text-align: center; margin-top: 16px; color: #666;">Connect your wallet to vote</p>` : ''}
     ${!isActive ? `<p style="text-align: center; margin-top: 16px; color: #666;">Voting has ended</p>` : ''}
+
+    ${voteReasons && voteReasons.length > 0 ? `
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #eee;">
+        <h3 style="margin-bottom: 16px; font-size: 20px; font-weight: 900;">Vote Reasons</h3>
+        ${voteReasons.map(reason => `
+          <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid ${reason.votes.vote_type === 'aye' ? '#4CAF50' : reason.votes.vote_type === 'nay' ? '#E85D5D' : '#9E9E9E'};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 800; color: ${reason.votes.vote_type === 'aye' ? '#4CAF50' : reason.votes.vote_type === 'nay' ? '#E85D5D' : '#9E9E9E'};">
+                ${reason.votes.vote_type === 'aye' ? '👍 AYE' : reason.votes.vote_type === 'nay' ? '👎 NAY' : '🤷 ABSTAIN'}
+              </span>
+              <span style="font-size: 12px; color: #666;">${new Date(reason.created_at).toLocaleDateString()}</span>
+            </div>
+            <p style="line-height: 1.6; white-space: pre-wrap;">${reason.reason}</p>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #eee;">
+      <h3 style="margin-bottom: 16px; font-size: 20px; font-weight: 900;">Discussion</h3>
+      ${wallet.isConnected ? `
+        <div class="form-group" style="margin-bottom: 16px;">
+          <textarea id="new-comment" placeholder="Share your thoughts on this proposal..."></textarea>
+          <button class="btn-primary" id="post-comment-btn" style="margin-top: 8px;">Post Comment</button>
+        </div>
+      ` : '<p style="color: #666; margin-bottom: 16px;">Connect your wallet to comment</p>'}
+
+      <div id="comments-list">
+        ${comments && comments.length > 0 ? comments.map(comment => `
+          <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 800; color: #333;">${comment.commenter_address.slice(0, 6)}...${comment.commenter_address.slice(-4)}</span>
+              <span style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString()}</span>
+            </div>
+            <p style="line-height: 1.6; white-space: pre-wrap;">${comment.comment}</p>
+          </div>
+        `).join('') : '<p style="color: #666;">No comments yet. Be the first to share your thoughts!</p>'}
+      </div>
+    </div>
   `;
 
   if (isActive && wallet.isConnected && !hasVoted) {
     document.querySelectorAll('.vote-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const voteType = btn.getAttribute('data-vote');
-        await handleVote(proposalId, voteType);
+        const reason = document.getElementById('vote-reason')?.value || '';
+        await handleVote(proposalId, voteType, reason);
       });
+    });
+  }
+
+  if (wallet.isConnected && document.getElementById('post-comment-btn')) {
+    document.getElementById('post-comment-btn').addEventListener('click', async () => {
+      await handlePostComment(proposalId);
     });
   }
 
   document.getElementById('proposal-modal').classList.add('active');
 }
 
-async function handleVote(proposalId, voteType) {
+async function handleVote(proposalId, voteType, reason = '') {
   const wallet = getWalletInfo();
 
   if (!wallet.isConnected) {
@@ -249,16 +312,28 @@ async function handleVote(proposalId, voteType) {
   }
 
   try {
-    const { error } = await supabase
+    const { data: voteData, error: voteError } = await supabase
       .from('votes')
       .insert({
         proposal_id: proposalId,
         voter_address: wallet.userAddress,
         vote_type: voteType,
         is_anonymous: true
-      });
+      })
+      .select()
+      .single();
 
-    if (error) throw error;
+    if (voteError) throw voteError;
+
+    if (reason && voteData) {
+      await supabase
+        .from('vote_reasons')
+        .insert({
+          vote_id: voteData.id,
+          voter_address: wallet.userAddress,
+          reason: reason
+        });
+    }
 
     alert('Vote submitted successfully!');
     document.getElementById('proposal-modal').classList.remove('active');
@@ -266,6 +341,52 @@ async function handleVote(proposalId, voteType) {
   } catch (error) {
     console.error('Error submitting vote:', error);
     alert('Failed to submit vote. You may have already voted on this proposal.');
+  }
+}
+
+async function handlePostComment(proposalId) {
+  const wallet = getWalletInfo();
+  const commentText = document.getElementById('new-comment').value.trim();
+
+  if (!commentText) {
+    alert('Please enter a comment.');
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('proposal_comments')
+      .insert({
+        proposal_id: proposalId,
+        commenter_address: wallet.userAddress,
+        comment: commentText
+      });
+
+    if (error) throw error;
+
+    document.getElementById('new-comment').value = '';
+
+    const { data: comments } = await supabase
+      .from('proposal_comments')
+      .select('*')
+      .eq('proposal_id', proposalId)
+      .is('parent_comment_id', null)
+      .order('created_at', { ascending: false });
+
+    const commentsList = document.getElementById('comments-list');
+    commentsList.innerHTML = comments && comments.length > 0 ? comments.map(comment => `
+      <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 800; color: #333;">${comment.commenter_address.slice(0, 6)}...${comment.commenter_address.slice(-4)}</span>
+          <span style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString()}</span>
+        </div>
+        <p style="line-height: 1.6; white-space: pre-wrap;">${comment.comment}</p>
+      </div>
+    `).join('') : '<p style="color: #666;">No comments yet. Be the first to share your thoughts!</p>';
+
+  } catch (error) {
+    console.error('Error posting comment:', error);
+    alert('Failed to post comment. Please try again.');
   }
 }
 
