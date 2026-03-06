@@ -1,82 +1,24 @@
-import '@reown/appkit-polyfills';
-import { createAppKit } from '@reown/appkit';
-import { EthersAdapter } from '@reown/appkit-adapter-ethers';
-import { mainnet, sepolia } from '@reown/appkit/networks';
 import { ethers } from 'ethers';
 
-let modal = null;
 let provider = null;
 let signer = null;
 let userAddress = null;
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID';
-
-const metadata = {
-  name: 'PizzaDAO Governance',
-  description: 'Onchain governance platform for PizzaDAO',
-  url: window.location.origin,
-  icons: [`${window.location.origin}/assets/logo.png`]
-};
-
-const ethersAdapter = new EthersAdapter();
-
 export function initWallet() {
-  modal = createAppKit({
-    adapters: [ethersAdapter],
-    networks: [mainnet, sepolia],
-    metadata,
-    projectId,
-    features: {
-      analytics: false,
-      email: false,
-      socials: []
-    },
-    themeMode: 'light',
-    themeVariables: {
-      '--w3m-accent': '#7DD3E8',
-      '--w3m-border-radius-master': '8px'
-    }
-  });
-
   const connectButton = document.getElementById('connect-wallet');
 
   connectButton.addEventListener('click', async () => {
-    await modal.open();
-  });
-
-  modal.subscribeProvider(async (state) => {
-    if (state.isConnected && state.address) {
-      userAddress = state.address;
-
-      if (state.provider) {
-        provider = new ethers.BrowserProvider(state.provider);
-        signer = await provider.getSigner();
-      } else if (window.ethereum) {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-      }
-
-      updateWalletUI();
-    } else {
-      disconnectWallet();
-    }
+    await connectWallet();
   });
 
   if (window.ethereum) {
-    window.ethereum.on('accountsChanged', async (accounts) => {
+    window.ethereum.on('accountsChanged', (accounts) => {
       if (accounts.length === 0) {
         disconnectWallet();
-      } else if (accounts[0] !== userAddress) {
+      } else {
         userAddress = accounts[0];
-        if (provider) {
-          signer = await provider.getSigner();
-        }
         updateWalletUI();
       }
-    });
-
-    window.ethereum.on('chainChanged', () => {
-      window.location.reload();
     });
   }
 
@@ -84,23 +26,7 @@ export function initWallet() {
 }
 
 async function checkConnection() {
-  const walletProvider = modal?.getWalletProvider();
-
-  if (walletProvider) {
-    try {
-      const ethersProvider = new ethers.BrowserProvider(walletProvider);
-      const accounts = await ethersProvider.listAccounts();
-
-      if (accounts.length > 0) {
-        provider = ethersProvider;
-        signer = await provider.getSigner();
-        userAddress = await signer.getAddress();
-        updateWalletUI();
-      }
-    } catch (error) {
-      console.error('Error checking WalletConnect connection:', error);
-    }
-  } else if (window.ethereum) {
+  if (window.ethereum) {
     try {
       const accounts = await window.ethereum.request({ method: 'eth_accounts' });
       if (accounts.length > 0) {
@@ -112,6 +38,25 @@ async function checkConnection() {
     } catch (error) {
       console.error('Error checking connection:', error);
     }
+  }
+}
+
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert('MetaMask is not installed. Please install MetaMask to use this application.');
+    return;
+  }
+
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    userAddress = accounts[0];
+
+    updateWalletUI();
+  } catch (error) {
+    console.error('Error connecting wallet:', error);
+    alert('Failed to connect wallet. Please try again.');
   }
 }
 
@@ -142,8 +87,4 @@ export function getWalletInfo() {
     userAddress,
     isConnected: !!userAddress
   };
-}
-
-export function getAppKitModal() {
-  return modal;
 }

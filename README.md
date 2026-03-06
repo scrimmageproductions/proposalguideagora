@@ -10,7 +10,7 @@ A comprehensive onchain governance system for PizzaDAO powered by Agora-inspired
 - **NFT-Gated**: Only PizzaDAO Box and Pizza NFT holders can create proposals
 - **Vote Thresholds**: Configurable requirements based on funding amounts (15/25/35 votes)
 - **7-Day Voting Period**: Standard governance timeline with automatic status updates
-- **Multi-Wallet Support**: Connect with 300+ wallets via WalletConnect including MetaMask, Rainbow, Coinbase Wallet, Trust Wallet, and more
+- **Wallet Integration**: MetaMask connection for proposal creation and voting
 
 ### Delegation System (Agora-Inspired)
 - **Delegate Your Voting Power**: Entrust your vote to trusted community members
@@ -46,7 +46,7 @@ A comprehensive onchain governance system for PizzaDAO powered by Agora-inspired
 - **Frontend**: Vanilla JavaScript ES6 modules with Vite build tool
 - **Database**: Supabase (PostgreSQL with Row Level Security)
 - **Blockchain**: Ethereum via Ethers.js v6
-- **Wallet**: WalletConnect AppKit with support for 300+ wallets
+- **Wallet**: MetaMask browser extension integration
 - **Styling**: Custom CSS with CSS variables and modern layouts
 
 ## Agora-Inspired Features
@@ -105,33 +105,21 @@ This platform integrates key features from the [Agora governance ecosystem](http
 - **$625–$2,500**: 25 votes required
 - **> $2,500**: 35 votes required
 
-## Setup
+## Development
 
-1. **Get a WalletConnect Project ID**
-   - Visit [WalletConnect Cloud](https://cloud.walletconnect.com)
-   - Create a new project
-   - Copy your Project ID
+```bash
+# Install dependencies
+npm install
 
-2. **Configure Environment Variables**
-   ```bash
-   # Add to .env file
-   VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
-   ```
+# Run development server
+npm run dev
 
-3. **Install & Run**
-   ```bash
-   # Install dependencies
-   npm install
+# Build for production
+npm run build
 
-   # Run development server
-   npm run dev
-
-   # Build for production
-   npm run build
-
-   # Preview production build
-   npm run preview
-   ```
+# Preview production build
+npm run preview
+```
 
 ## Project Structure
 
